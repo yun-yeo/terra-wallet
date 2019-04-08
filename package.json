@@ -1,0 +1,36 @@
+{
+  "name": "terra-wallet",
+  "version": "1.0.0",
+  "description": "terra blockchain wallet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YunSuk-Yeo/terra-wallet.git"
+  },
+  "keywords": [
+    "terra",
+    "blockchain",
+    "wallet"
+  ],
+  "author": "YunSuk-Yeo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YunSuk-Yeo/terra-wallet/issues"
+  },
+  "homepage": "https://github.com/YunSuk-Yeo/terra-wallet#readme",
+  "dependencies": {
+    "async-sema": "^3.0.0",
+    "axios": "^0.18.0",
+    "bech32": "^1.1.3",
+    "bip32": "^1.0.4",
+    "bip39": "^3.0.0",
+    "crypto-js": "^3.1.9-1",
+    "level": "^5.0.1",
+    "restify": "^7.7.0",
+    "secp256k1": "^3.6.2",
+    "semaphore": "^1.1.0"
+  }
+}
