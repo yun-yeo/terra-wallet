@@ -3,7 +3,7 @@
 module.exports = {
     DEBUG: true,
 
-    PROVIDER: "https://lcd.terra.money",
+    PROVIDER: "http://127.0.0.1:1317",
 
     TITLE: "Terra Wallet",
     PORT: 8080,

@@ -98,7 +98,7 @@ class Controller {
             }
 
             accountInfo.sequence++;
-            await this.km.setAccountInfo(accountInfo);
+            await this.km.setAccountInfo(accountInfo.address, accountInfo);
             return Controller._(inputs, res, null);
         }).catch(err => {
             console.log('send', inputs, err);
