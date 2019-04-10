@@ -78,6 +78,13 @@ class KeyManager {
         return Wallet.createTerraAddress(publicKey)
     }
 
+    setAccountInfo(address, {keyIndex, sequence}) {
+        return this.db.put(address, JSON.stringify({
+            keyIndex: keyIndex,
+            sequence: sequence
+        }));
+    }
+
     async getAddresses() {
         let addresses = [];
         for(let i = 0; i < this.lastKeyIndex; i++) {
