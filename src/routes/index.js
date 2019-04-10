@@ -54,12 +54,13 @@ const routes = (server) => {
 
     server.post("/send", start, (req, res, next) => {
 
-        const address = req.body.address;
+        const fromAddress = req.body.from_address;
+        const toAddress = req.body.to_address;
         const amount = req.body.amount;
         const memo = req.body.memo;
         const denom = req.body.denom;
 
-        return controller.send(address, amount, memo, denom)
+        return controller.send(fromAddress, toAddress, amount, memo, denom)
         .then(result => {
             res.result = result;
             return next();
@@ -88,6 +89,19 @@ const routes = (server) => {
         })
     }, end);
 
+    server.get("/txs", start, (req, res, next) => {
+        let s = new Date();
+        
+        const page = req.query.page;
+        const size = req.query.size;
+        const tags = req.query.tags;
+
+        return controller.getTransaction(page, size, tags)
+        .then(result => {
+            res.result = result;
+            return next();
+        })
+    }, end);
 };
 
 module.exports = routes;

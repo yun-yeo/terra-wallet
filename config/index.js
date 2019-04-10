@@ -10,8 +10,7 @@ module.exports = {
 
     CHAIN_ID: "soju-0006",
 
-    MASTER_MNEMONIC: "swap theme smile ordinary camera gain glow image dragon clutch found right spring evolve shoulder depend sad december zone train like perfect autumn expire",
-
+    MASTER_MNEMONIC: "pistol cycle mushroom minute sugar patient crack dumb tool zone onion marine theme kitten return stage dirt egg escape valley sleep cream there remind",
     BLOCK_TIME: 5000,
 
     TRANSACTION_CHECK_PAGE_SIZE: 10,

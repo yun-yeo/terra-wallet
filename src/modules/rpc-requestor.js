@@ -62,30 +62,27 @@ class Client {
         }
 
         return {
-            acountNumber: accountInfo.value.account_number,
+            accountNumber: Number(accountInfo.value.account_number),
             sequenceNumber: Number(accountInfo.value.sequence)
         };
     }
 
-    async transfer (fromAddress, toAddress, asset, memo, keyIndex, sequence) {
+    async transfer (accountInfo, toAddress, asset, memo) {
         await sema.acquire();
 
-        const inputs = [fromAddress, toAddress, asset, memo];
+        const inputs = [accountInfo, toAddress, asset, memo];
         try {
-            if(!KeyManager.isAddress(toAddress) && !KeyManager.isAddress(fromAddress)) {
+            if(!KeyManager.isAddress(toAddress) && !KeyManager.isAddress(accountInfo.address)) {
                 console.log("transfer", inputs, "Address should start with \"terra\"");
                 return {error: errCode.INVALID_PARAM};
             }
 
-            const {accountNumber, sequenceNumber} = await this.loadAccountInfo(fromAddress);
-            sequence = sequence > sequenceNumber ? sequence : sequenceNumber;
-
             let result = await this.request('POST', '/bank/accounts/' + toAddress + '/transfers', {
                 "base_req": {
-                    "from": fromAddress,
+                    "from": accountInfo.address,
                     "chain_id": config.CHAIN_ID,
-                    "account_number": accountNumber,
-                    "sequence": sequence.toString(),
+                    "account_number": String(accountInfo.accountNumber),
+                    "sequence": String(accountInfo.sequence),
                     "fees": config.FEES,
                     "memo": memo,
                     "simulate": false,
@@ -96,7 +93,7 @@ class Client {
             });
 
             sema.release();
-            return {result: result, sequence: ++sequence};
+            return {result: result};
         } catch (err) {
             console.log("transfer", inputs, err);
 
@@ -110,13 +107,17 @@ class Client {
     }
 
     get getTx() {
-        return argReq.call(this, 'GET', 'txs');
+        return argReq.call(this, 'GET', '/txs');
     }
 
     get getTxs() {
         return (page, size, tags = "action=send") => {
             return this.request('GET', "/txs?page=" + page + "&limit=" + size + "&" + tags);
         }
+    }
+
+    get broadcast() {
+        return req.call(this, 'POST', '/txs')
     }
 
 }

@@ -62,21 +62,42 @@ class Controller {
         }
     };
 
-    send(address, amount, memo, denom) {
-        const inputs = [address, amount, memo, denom];
+    async send(fromAddress, toAddress, amount, memo, denom) {
+        const inputs = [fromAddress, toAddress, amount, memo, denom];
 
         if (denom && config.DENOM.indexOf(denom) === -1) {
             console.log('send', inputs, "DENOM NOT SUPPORTED");
             return Controller._(inputs, null, errCode.DENOM_NOT_SUPPORTED);
         }
 
-        return this.rpc.transfer(address, {denom: denom || config.DEFAULT_DENOM, amount: amount}, memo)
+        // Get Sequence Number & Key Index for Signing
+        const { sequence, keyIndex } = await this.km.getAddressInfo(fromAddress);
+
+        // Get Account Number
+        const { sequenceNumber, accountNumber } = await this.rpc.loadAccountInfo(fromAddress);
+        
+        const accountInfo = {
+            address: fromAddress,
+            sequence: Math.max(sequence, sequenceNumber),
+            accountNumber: accountNumber,
+            keyIndex: keyIndex,
+        };
+
+        return this.rpc.transfer(accountInfo, toAddress, {denom: denom || config.DEFAULT_DENOM, amount: amount}, memo)
         .then(res => {
-            if (res["result"] && res["result"]["txhash"]) {
-                return Controller._(inputs, {hash: res["result"]["txhash"]}, null);
+            if(res.result && res.result.value) {
+                const broadcastBody = this.km.signAndCompleteBroadcastBody(accountInfo, res.result.value);
+                return this.rpc.broadcast(broadcastBody);    
             } else {
-                return Controller._(inputs, null, errCode.TRANSACTION_ERROR);
+                throw res;
             }
+            
+        }).then(res => {
+            if(res.code && res.code !== 0) {
+                throw res;
+            }
+
+            return Controller._(inputs, res, null);
         }).catch(err => {
             console.log('send', inputs, err);
             return Controller._(inputs, null, errCode.TRANSACTION_ERROR);
@@ -85,8 +106,7 @@ class Controller {
 
     getLatestBlock() {
         const inputs = [];
-        return Controller._(inputs, null, errCode.TRANSACTION_ERROR);
-        return this.db.getBlock('latest')
+        return this.rpc.getBlock('latest')
             .then(block => {
                 if (!block)
                     return Controller._(inputs, null, errCode.BLOCK_ERROR);
@@ -99,13 +119,8 @@ class Controller {
             })
     };
 
-    getBlock(height, denom) {
-        const inputs = [height, denom];
-
-        if (denom && config.DENOM.indexOf(denom) === -1) {
-            console.log('getBlock', inputs, "DENOM NOT SUPPORTED");
-            return Controller._(inputs, null, errCode.DENOM_NOT_SUPPORTED);
-        }
+    getBlock(height) {
+        const inputs = [height];
 
         return this.rpc.getBlock(height)
         .then(block => {
@@ -120,6 +135,23 @@ class Controller {
             return Controller._(inputs, null, errCode.SYSTEM_ERROR);
         });
     };
+
+    getTransaction(page = 1, size = 10, tags = 'action=send') {
+        const inputs = [page, size, tags];
+
+        return this.rpc.getTxs(page, size, tags)
+        .then(txs => {
+            if(!txs) 
+                return Controller._(inputs, null, errCode.SYSTEM_ERROR);
+
+            return Controller._(inputs, txs, null);
+        })
+        .catch(err => {
+            console.log('getTransaction', inputs, err);
+            return Controller._(inputs, null, errCode.SYSTEM_ERROR);
+        })
+
+    }
 
     //private
     static _(input, output, error) {

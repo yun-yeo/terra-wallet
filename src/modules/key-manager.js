@@ -16,6 +16,7 @@ class KeyManager {
         .then(masterKey => {
             this.masterKey = masterKey;
         }).catch(err => {
+            console.log(err);
             process.exit(0);
         })
         
@@ -85,6 +86,15 @@ class KeyManager {
         }
 
         return addresses;
+    }
+
+    signAndCompleteBroadcastBody(accountInfo, jsonTx) {
+        const wallet = Wallet.deriveKeypair(this.masterKey, accountInfo.keyIndex);
+        const signature = Wallet.sign(jsonTx, wallet, {sequence: String(accountInfo.sequence), chain_id: config.CHAIN_ID, account_number: String(accountInfo.accountNumber)});
+        const signedTx = Wallet.createSignedTx(jsonTx, signature);
+        const broadcastBody = Wallet.createBroadcastBody(signedTx, "sync")   // "block"(return after tx commit), "sync"(return afer CheckTx) and "async"(return right away) - ref: https://cosmos.network/rpc/#/ICS0/post_txs
+
+        return broadcastBody;
     }
 
     static isAddress(address) {
