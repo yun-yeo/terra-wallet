@@ -92,7 +92,7 @@ class Controller {
                 throw res;
             }
             
-        }).then(res => {
+        }).then(async res => {
             if(res.code && res.code !== 0) {
                 throw res;
             }
