@@ -1,6 +1,9 @@
 # terra-wallet
 terra blockchain wallet library
 
+# How to run Terra-Core LCD
+ref: https://github.com/terra-project/core/blob/develop/docs/guide/light-client.md
+
 # Create New Address
 curl -X POST -isu terra:terra-password http://127.0.0.1:8080/address/new
 
