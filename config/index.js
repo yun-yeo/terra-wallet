@@ -8,9 +8,9 @@ module.exports = {
     TITLE: "Terra Wallet",
     PORT: 8080,
 
-    CHAIN_ID: "soju-0006",
+    CHAIN_ID: "chain-id",
 
-    MASTER_MNEMONIC: "pistol cycle mushroom minute sugar patient crack dumb tool zone onion marine theme kitten return stage dirt egg escape valley sleep cream there remind",
+    MASTER_MNEMONIC: "mnemonic",
     BLOCK_TIME: 5000,
 
     TRANSACTION_CHECK_PAGE_SIZE: 10,

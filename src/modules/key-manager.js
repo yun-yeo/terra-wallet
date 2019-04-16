@@ -20,7 +20,7 @@ class KeyManager {
             process.exit(0);
         })
         
-        this.db = level('../../key.db')
+        this.db = level('../../key3.db')
 
         this.db.get('last-key-index')
         .then(value => {

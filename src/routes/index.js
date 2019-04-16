@@ -67,6 +67,21 @@ const routes = (server) => {
         })
     }, end);
 
+    server.post("/oracle/vote", start, (req, res, next) => {
+
+        const fromAddress = req.body.from_address;
+        const price = req.body.price;
+        const denom = req.body.denom;
+        const memo = req.body.memo;
+
+
+        return controller.oracleVote(fromAddress, price, denom, memo)
+        .then(result => {
+            res.result = result;
+            return next();
+        }).catch(err => {console.log(err)})
+    }, end);
+
     server.get("/block/:height", start, (req, res, next) => {
         let s = new Date();
         const height = req.params.height;
