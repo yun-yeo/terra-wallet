@@ -196,7 +196,7 @@ class Wallet {
   static createBroadcastBody(signedTx, returnType = `block`) {
     return JSON.stringify({
       tx: signedTx,
-      return: returnType
+      mode: returnType
     })
   }
 }
