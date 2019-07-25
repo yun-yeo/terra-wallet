@@ -87,7 +87,7 @@ class Client {
                     "memo": memo,
                     "simulate": false,
                 },
-                "amount": [
+                "coins": [
                     asset
                 ]
             });

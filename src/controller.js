@@ -52,6 +52,10 @@ class Controller {
 
     };
 
+    getAddressWithIndex(index) {
+        return this.km.getAddressFromIndex(index);
+    }
+
     static checkAddress(address) {
         const inputs = [address];
         try {
@@ -87,6 +91,7 @@ class Controller {
         .then(res => {
             if(res.result && res.result.value) {
                 const broadcastBody = this.km.signAndCompleteBroadcastBody(accountInfo, res.result.value);
+                console.log(broadcastBody);
                 return this.rpc.broadcast(broadcastBody);    
             } else {
                 throw res;
@@ -106,11 +111,15 @@ class Controller {
         });
     };
 
+    async multiSend(inputs, outputs, memo) {
+        const params = [inputs, outputs, memo];
+    }
+
     async oracleVote(fromAddress, price, denom, memo) {
         const inputs = [fromAddress, denom, price, memo];
 
         if (denom && config.DENOM.indexOf(denom) === -1) {
-            console.log('send', inputs, "DENOM NOT SUPPORTED");
+            console.log('oracleVote', inputs, "DENOM NOT SUPPORTED");
             return Controller._(inputs, null, errCode.DENOM_NOT_SUPPORTED);
         }
 
@@ -132,7 +141,6 @@ class Controller {
 
             if(res.result && res.result.value) {
                 const broadcastBody = this.km.signAndCompleteBroadcastBody(accountInfo, res.result.value);
-                console.log(JSON.stringify(broadcastBody));
                 return this.rpc.broadcast(broadcastBody);    
             } else {
                 throw res;
@@ -147,7 +155,7 @@ class Controller {
             await this.km.setAccountInfo(accountInfo.address, accountInfo);
             return Controller._(inputs, res, null);
         }).catch(err => {
-            console.log('send', inputs, err);
+            console.log('oracleVote', inputs, err);
             return Controller._(inputs, null, errCode.TRANSACTION_ERROR);
         });
     };

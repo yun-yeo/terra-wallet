@@ -12,6 +12,8 @@ const level = require('level')
 class KeyManager {
     constructor(rpc) {
 
+        this.lastKeyIndex = 0;
+
         Wallet.deriveMasterKey(config.MASTER_MNEMONIC)
         .then(masterKey => {
             this.masterKey = masterKey;
@@ -20,7 +22,7 @@ class KeyManager {
             process.exit(0);
         })
         
-        this.db = level('../../key3.db')
+        this.db = level('./key0.db')
 
         this.db.get('last-key-index')
         .then(value => {
@@ -28,10 +30,15 @@ class KeyManager {
         })
         .catch(err => {
             if(err.type == 'NotFoundError') {
-                return this.db.put('last-key-index', String(0)).catch(err => {
-                    console.error(err);
-                    process.exit(0);
-                })
+                return this.newAddress().then((address) => {
+                    console.log("base address:", address )
+
+                    return this.db.put('last-key-index', String(0)).catch(err => {
+                        console.error(err);
+                        process.exit(0);
+                    });
+                });
+                
             }
         })
 
@@ -55,7 +62,7 @@ class KeyManager {
 
                 this.lastKeyIndex++;
                 sema.release();
-                return resolve({address: newAddress});
+                return resolve(newAddress);
 
             } catch(err) {
                 sema.release();
@@ -99,7 +106,7 @@ class KeyManager {
         const wallet = Wallet.deriveKeypair(this.masterKey, accountInfo.keyIndex);
         const signature = Wallet.sign(jsonTx, wallet, {sequence: String(accountInfo.sequence), chain_id: config.CHAIN_ID, account_number: String(accountInfo.accountNumber)});
         const signedTx = Wallet.createSignedTx(jsonTx, signature);
-        const broadcastBody = Wallet.createBroadcastBody(signedTx, "sync")   // "block"(return after tx commit), "sync"(return afer CheckTx) and "async"(return right away) - ref: https://cosmos.network/rpc/#/ICS0/post_txs
+        const broadcastBody = Wallet.createBroadcastBody(signedTx, "sync");   // "block"(return after tx commit), "sync"(return afer CheckTx) and "async"(return right away) - ref: https://cosmos.network/rpc/#/ICS0/post_txs
 
         return broadcastBody;
     }

@@ -10,7 +10,7 @@ const sha256 = require("crypto-js/sha256")
 const ripemd160 = require("crypto-js/ripemd160")
 const CryptoJS = require("crypto-js")
 
-const hdPathTerra = `m/44'/118'/0'/0/` // key controlling Terra allocation
+const hdPathTerra = `m/44'/330'/0'/0/` // key controlling Terra allocation
 
 
 class Wallet {
@@ -40,18 +40,7 @@ class Wallet {
   }
 
   static standardRandomBytesFunc (size) {
-    /* istanbul ignore if: not testable on node */
-    if (window.crypto) {
-      let key = ``
-      let keyContainer = new Uint32Array(size/4)
-      keyContainer = window.crypto.getRandomValues(keyContainer)
-      for (let keySegment = 0; keySegment < keyContainer.length; keySegment++) {
-        key += keyContainer[keySegment].toString(16) // Convert int to hex
-      }
-      return key
-    } else {
-      return CryptoJS.lib.WordArray.random(size).toString()
-    }
+    return CryptoJS.lib.WordArray.random(size).toString()
   }
 
   static async generateWalletFromSeed(mnemonic) {
@@ -154,14 +143,10 @@ class Wallet {
 
   static createSignature(
     signature,
-    sequence,
-    account_number,
     publicKey
   ) {
     return {
       signature: signature.toString(`base64`),
-      account_number,
-      sequence,
       pub_key: {
         type: `tendermint/PubKeySecp256k1`, // TODO: allow other keytypes
         value: publicKey.toString(`base64`)
@@ -172,14 +157,11 @@ class Wallet {
   // main function to sign a jsonTx using the local keystore wallet
   // returns the complete signature object to add to the tx
   static sign(jsonTx, wallet, requestMetaData) {
-    const { sequence, account_number } = requestMetaData
     const signMessage = Wallet.createSignMessage(jsonTx, requestMetaData)
     const signatureBuffer = Wallet.signWithPrivateKey(signMessage, wallet.privateKey)
     const pubKeyBuffer = Buffer.from(wallet.publicKey, `hex`)
     return Wallet.createSignature(
       signatureBuffer,
-      sequence,
-      account_number,
       pubKeyBuffer
     )
   }
