@@ -10,7 +10,7 @@ const sha256 = require("crypto-js/sha256")
 const ripemd160 = require("crypto-js/ripemd160")
 const CryptoJS = require("crypto-js")
 
-const hdPathTerra = `m/44'/330'/0'/0/` // key controlling Terra allocation
+const hdPathTerra = `m/44'/330'/0'/0/` // key controlling Luna allocation
 
 
 class Wallet {
